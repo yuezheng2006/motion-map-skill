@@ -34,9 +34,9 @@ export function runChrome(chrome, args) {
 const unesc = s => s.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&');
 
 // loads the page in ?check mode and returns the engine's self-check: {width, height, issues, warnings}
-export function readDiag(chrome, htmlPath) {
+export function readDiag(chrome, htmlPath, theme) {
   const dom = runChrome(chrome, ['--force-device-scale-factor=1', '--virtual-time-budget=2500', '--window-size=1400,1000',
-    '--dump-dom', fileUrl(htmlPath) + '?check']);
+    '--dump-dom', fileUrl(htmlPath) + '?check' + (theme ? '&theme=' + encodeURIComponent(theme) : '')]);
   const m = /<pre id="__diag"[^>]*>([\s\S]*?)<\/pre>/.exec(dom);
   if (!m) { console.error('engine did not finish — open the file in a browser and check the console for a script error'); process.exit(2); }
   return JSON.parse(unesc(m[1]));

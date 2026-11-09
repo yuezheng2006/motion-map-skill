@@ -13,16 +13,30 @@
     activeTheme = safeTheme(name);
     const root = document.documentElement;
     root.dataset.theme = activeTheme;
+    root.removeAttribute('style');
     for (const [key, value] of Object.entries(THEMES[activeTheme].tokens)) root.style.setProperty('--' + key, value);
     root.style.colorScheme = THEMES[activeTheme].tokens['color-scheme'];
   }
   applyTheme(activeTheme);
   const CHECK = /[?&]check\b/.test(location.search);
   if (CHECK) document.documentElement.classList.add('check');
-  const STILL = CHECK || matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches && params.get('motion') !== 'on';
+  const STILL = CHECK;
+  document.documentElement.classList.toggle('paused', REDUCED);
+  document.documentElement.classList.toggle('motion-on', !REDUCED);
   // ?loop=P makes every animation periodic in P seconds, so a P-second recording repeats seamlessly
   const LOOP = +(new URLSearchParams(location.search).get('loop') || 0);
   if (LOOP) document.documentElement.classList.add('loop');
+  const TH = Object.assign({ ww: 1.4, dash: '5 4', cap: 'butt', join: 'miter', arrow: 9.8, arrowShape: 'solid', round: 0,
+    sketch: false, labelBox: null, labelColor: 'dim', startDot: false, iso: false }, {
+    blueprint:  { ww: 1.3, dash: '12 6', marks: true },
+    drafting:   { ww: 1.1, dash: '10 3 2 3', startDot: true },
+    whiteboard: { ww: 1.8, dash: '10 8', cap: 'round', join: 'round', arrow: 13, arrowShape: 'open', sketch: true },
+    brutalism:  { ww: 3, dash: '12 6', arrow: 15, labelBox: 'brutal', labelColor: 'text' },
+    crt:        { ww: 1.6, dash: '4 5', join: 'round' },
+    saas:       { ww: 1.8, dash: '0 6', cap: 'round', join: 'round', round: 14, labelBox: 'pill' },
+    isometric:  { ww: 2, dash: '6 3', join: 'round', round: 8, labelBox: 'halo', iso: true },
+  }[activeTheme] || {});
   const W = S.width || 1080;
   const NS = 'http://www.w3.org/2000/svg';
   const SHORT = { bl: 'blue', cy: 'cyan', gr: 'green', am: 'amber', pu: 'purple', rd: 'red', or: 'orange' };
@@ -144,7 +158,7 @@
   const rails = [];
   for (const n of S.nodes || []) {
     const d = el('div', 'box' + (n.dashed ? ' dash' : '') + (n.status ? ' is-' + n.status : '') + (n.kind === 'rail' ? ' rail' : ''), null, stage);
-    d.id = n.id;
+    d.id = n.id; d.dataset.n = (S.nodes || []).indexOf(n) + 1;
     if (SHAPES.has(n.shape)) d.classList.add('shape-' + n.shape);
     if (n.h && n.h < 75) d.classList.add('compact');
     if (Object.hasOwn(ICONS, n.icon)) {
@@ -343,6 +357,64 @@
     }
     return va ? [A, [A[0], Z[1]], Z] : [A, [Z[0], A[1]], Z];
   }
+  // seeded jitter: hand-drawn strokes look the same on every load, so checks and video loops are stable
+  let seed = 20240607;
+  const rnd = () => (seed = seed * 16807 % 2147483647) / 2147483647 - 0.5;
+  function wobble(pts, amp = 1.4) {
+    let d = `M${pts[0][0]},${pts[0][1]}`;
+    for (let i = 1; i < pts.length; i++) {
+      const [x1, y1] = pts[i - 1], [x2, y2] = pts[i], last = i === pts.length - 1;
+      const n = Math.max(1, Math.round(Math.hypot(x2 - x1, y2 - y1) / 46));
+      for (let s = 1; s <= n; s++) {
+        const t = s / n, tm = (s - 0.5) / n, end = last && s === n;
+        const jitter = end || (i === 1 && s === 1) ? 0 : amp;
+        const x = x1 + (x2 - x1) * t + (end ? 0 : rnd() * amp), y = y1 + (y2 - y1) * t + (end ? 0 : rnd() * amp);
+        d += ` Q${(x1 + (x2 - x1) * tm + rnd() * jitter * 2).toFixed(1)},${(y1 + (y2 - y1) * tm + rnd() * jitter * 2).toFixed(1)} ${x.toFixed(1)},${y.toFixed(1)}`;
+      }
+    }
+    return d;
+  }
+  function wirePath(pts) {
+    if (TH.sketch) return wobble(pts);
+    if (!TH.round) return 'M' + pts.map(q => q.join(',')).join(' L');
+    let d = `M${pts[0]}`;
+    for (let i = 1; i < pts.length - 1; i++) {
+      const p = pts[i - 1], q = pts[i], r = pts[i + 1];
+      const l1 = Math.hypot(q[0] - p[0], q[1] - p[1]), l2 = Math.hypot(r[0] - q[0], r[1] - q[1]);
+      if (!l1 || !l2) continue;
+      const k = Math.min(TH.round, l1 / 2, l2 / 2);
+      d += ` L${q[0] - (q[0] - p[0]) / l1 * k},${q[1] - (q[1] - p[1]) / l1 * k} Q${q} ${q[0] + (r[0] - q[0]) / l2 * k},${q[1] + (r[1] - q[1]) / l2 * k}`;
+    }
+    return d + ` L${pts[pts.length - 1]}`;
+  }
+  // whiteboard: boxes and groups are drawn as sketched outlines with a hatched fill, under the wires
+  function sketchBoxes() {
+    const g = document.createElementNS(NS, 'g'); g.setAttribute('class', 'sketch');
+    svg.insertBefore(g, defs.nextSibling);
+    const add = (tag, attrs, parent = g) => {
+      const x = document.createElementNS(NS, tag);
+      for (const [a, v] of Object.entries(attrs)) x.setAttribute(a, v);
+      parent.appendChild(x); return x;
+    };
+    const ink = cssv('head');
+    [...stage.querySelectorAll('.group, .box')].forEach((b, i) => {
+      const r = R(b), c = getComputedStyle(b).getPropertyValue('--c').trim() || cssv('faint');
+      const rect = [[r.l, r.t], [r.r, r.t], [r.r, r.b], [r.l, r.b], [r.l, r.t]];
+      if (b.classList.contains('group')) {
+        add('path', { d: wobble(rect, 1.6), fill: 'none', stroke: c, 'stroke-width': 1.6, 'stroke-linecap': 'round',
+          'stroke-dasharray': b.classList.contains('solid') ? 'none' : '9 7' });
+        return;
+      }
+      const clip = add('clipPath', { id: 'ck' + i }, defs);
+      add('rect', { x: r.l, y: r.t, width: r.r - r.l, height: r.b - r.t }, clip);
+      const h = add('g', { 'clip-path': `url(#ck${i})`, stroke: c, 'stroke-width': 2.6, 'stroke-linecap': 'round', opacity: 0.3, fill: 'none' });
+      const H0 = r.b - r.t;
+      for (let t = -H0; t < r.r - r.l; t += 9) add('path', { d: wobble([[r.l + t, r.b + 2], [r.l + t + H0 + 4, r.t - 2]], 0.9) }, h);
+      const dash = getComputedStyle(b).borderTopStyle === 'dashed' ? '8 6' : 'none';
+      add('path', { d: wobble(rect, 1.8), fill: 'none', stroke: ink, 'stroke-width': 1.9, 'stroke-linejoin': 'round', 'stroke-linecap': 'round', 'stroke-dasharray': dash });
+      add('path', { d: wobble(rect.map(([x, y]) => [x + 1, y - 1]), 1.8), fill: 'none', stroke: ink, 'stroke-width': 0.9, opacity: 0.55, 'stroke-dasharray': dash });
+    });
+  }
   function dot(x, y, k, hollow) {
     const c = document.createElementNS(NS, 'circle');
     c.setAttribute('cx', x); c.setAttribute('cy', y); c.setAttribute('r', hollow ? 4 : 3.5);
@@ -351,13 +423,13 @@
     svg.appendChild(c);
   }
   // a small glowing packet travelling along each wire
-  function packet(pts, k, timeline) {
+  function packet(pts, k, timeline, wireD) {
     let len = 0;
     for (let i = 1; i < pts.length; i++) len += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
     const c = document.createElementNS(NS, 'circle');
-    c.setAttribute('r', 2.6); c.setAttribute('fill', cssv(k)); c.style.filter = `drop-shadow(0 0 3px ${cssv(k)})`;
+    c.setAttribute('r', 4); c.setAttribute('fill', cssv(k)); c.style.filter = `drop-shadow(0 0 3px ${cssv(k)})`;
     const m = document.createElementNS(NS, 'animateMotion');
-    m.setAttribute('path', 'M' + pts.map(q => q.join(',')).join(' L'));
+    m.setAttribute('path', wireD || 'M' + pts.map(q => q.join(',')).join(' L'));
     if (timeline) {
       const {at,duration,period} = timeline, end=at+duration;
       m.setAttribute('dur', period+'s'); m.setAttribute('begin', '0s'); m.setAttribute('repeatCount', 'indefinite');
@@ -473,6 +545,7 @@
     })();
   }
 
+  if (TH.sketch) sketchBoxes();
   (S.edges || []).forEach((e0, i) => {
     const f = FLOW[e0.flow] || {};
     if (e0.flow && !FLOW[e0.flow]) issues.push(`edge#${i}: unknown flow "${e0.flow}"`);
@@ -487,19 +560,22 @@
     if (e.straight) { if (V(a.side)) a.x = z.x; else a.y = z.y; }
     const pts = route(a, z, e).map(p => [Math.round(p[0] * 2) / 2, Math.round(p[1] * 2) / 2]);
     const k = col(e.color || 'dim');
-    const p = document.createElementNS(NS, 'polyline');
+    const shaped = TH.round || TH.sketch;
+    const p = document.createElementNS(NS, shaped ? 'path' : 'polyline');
     if (e.id) p.dataset.edgeId = String(e.id);
     if (e.meaning) p.dataset.meaning = String(e.meaning);
     if (e.order) p.dataset.order = String(e.order);
     if (e.messageType) p.dataset.messageType = e.messageType;
     if (e.relation) p.dataset.relation = RELATION_TYPES.has(e.relation) ? e.relation : 'invalid';
-    p.setAttribute('points', pts.map(q => q.join(',')).join(' '));
-    p.setAttribute('fill', 'none'); p.setAttribute('stroke', cssv(k)); p.setAttribute('stroke-width', 1.4);
-    if (e.dash) { p.setAttribute('stroke-dasharray', '5 4'); if (!STILL && e.relation !== 'association' && e.meaning !== 'dependency' && !e.timeline) p.classList.add('flow'); }
+    const wireD = shaped ? wirePath(pts) : null;
+    p.setAttribute(shaped ? 'd' : 'points', shaped ? wireD : pts.map(q => q.join(',')).join(' '));
+    p.setAttribute('stroke-linecap', TH.cap); p.setAttribute('stroke-linejoin', TH.join);
+    p.setAttribute('fill', 'none'); p.setAttribute('stroke', cssv(k)); p.setAttribute('stroke-width', TH.ww);
+    if (e.dash) { p.setAttribute('stroke-dasharray', TH.dash); if (!STILL && e.relation !== 'association' && e.meaning !== 'dependency' && !e.timeline) p.classList.add('flow'); }
     if (e.arrow !== false) { marker(k, e.arrowStyle); p.setAttribute('marker-end', `url(#a-${k}${e.arrowStyle === 'open' ? '-open' : ''})`); }
     if (e.arrow === 'both') p.setAttribute('marker-start', `url(#a-${k})`);
     svg.appendChild(p);
-    const timing = !STILL && e.packet !== false ? packet(pts, k, e.timeline) : null;
+    const timing = !STILL && e.packet !== false ? packet(pts, k, e.timeline, wireD) : null;
     if (timing && e.arrow === 'both') packet([...pts].reverse(), k);
     if (LIVE) liveEntry(e, k, timing);
     if (e.joint && pts.length > 2) dot(pts[pts.length - 2][0], pts[pts.length - 2][1], k, e.joint === 'hollow');
@@ -576,20 +652,57 @@
   for (const c of badColors) issues.push(`unknown color ${JSON.stringify(c)} — use one of: ${[...COLORS].join(' ')} (or ${Object.keys(SHORT).join(' ')})`);
   if (crossings) warnings.push(`${crossings} wire crossing(s) — fine if unavoidable, but try reordering boxes first`);
 
+  // ---------- isometric: lay the finished, checked diagram on an isometric floor ----------
+  // header and log stay upright above and below; the floor is scaled to fit the canvas width
+  let outW = W, outH = H, scaleEl = stage;
+  if (TH.iso) {
+    const floorBottom = Math.max(0, ...[...stage.querySelectorAll('.box, .group, .note')].map(e => R(e).b));
+    const root = el('div', null, null, fit); root.id = 'isoRoot'; root.style.width = W + 'px';
+    const head = byId('head'); head.classList.remove('abs'); root.appendChild(head);
+    const wrap = el('div', null, null, root); wrap.id = 'isoWrap'; wrap.appendChild(stage);
+    const foot = el('div', null, null, root); foot.id = 'isoFoot';
+    for (const id of ['log', 'status']) {
+      const x = byId(id); if (!x) continue;
+      x.classList.remove('abs'); x.style.left = x.style.right = x.style.top = ''; foot.appendChild(x);
+    }
+    stage.style.height = (floorBottom + 24) + 'px';
+    stage.classList.add('iso');
+    const ISO = 'matrix(0.866, 0.5, -0.866, 0.5, 0, 0)';
+    const bbox = () => {
+      const w0 = wrap.getBoundingClientRect(); let l = 1e9, t = 1e9, r = -1e9, b = -1e9;
+      for (const e of stage.querySelectorAll('.box, .group, .note, #wires > path, #wires > text, #wires > rect, #wires > circle[cx]')) {
+        const q = e.getBoundingClientRect(); if (!q.width && !q.height) continue;
+        l = Math.min(l, q.left); t = Math.min(t, q.top); r = Math.max(r, q.right); b = Math.max(b, q.bottom + 14);
+      }
+      return { l: l - w0.left, t: t - w0.top, w: r - l, h: b - t };
+    };
+    stage.style.transform = ISO;
+    // the tilted floor is wider than the flat layout: widen the canvas rather than shrink the text
+    const b = bbox();
+    outW = Math.max(W, Math.ceil(b.w + 48));
+    root.style.width = outW + 'px'; fit.style.maxWidth = outW + 'px';
+    stage.style.transform = `translate(${(outW - b.w) / 2 - b.l}px, ${16 - b.t}px) ${ISO}`;
+    wrap.style.height = Math.ceil(b.h + 32) + 'px';
+    outH = Math.ceil(root.getBoundingClientRect().height);
+    scaleEl = root;
+  }
+
   const pre = el('pre', null, null, document.body);
   pre.id = '__diag'; pre.hidden = true;
-  pre.textContent = JSON.stringify({ width: W, height: H, issues, warnings });
+  pre.textContent = JSON.stringify({ width: outW, height: outH, issues, warnings });
   if (issues.length) console.warn('[motion-map]', issues);
 
   // ---------- scale to fit narrow screens ----------
   // zoom re-lays out at the smaller size so text stays crisp; transform blurs in narrow windows
   const useZoom = CSS.supports('zoom', '0.5');
   function scale() {
-    const k = Math.min(1, fit.clientWidth / W);
-    if (useZoom) stage.style.zoom = k; else stage.style.transform = `scale(${k})`;
-    fit.style.height = (H * k) + 'px';
+    const k = Math.min(1, fit.clientWidth / outW);
+    if (useZoom) scaleEl.style.zoom = k; else scaleEl.style.transform = `scale(${k})`;
+    fit.style.height = (outH * k) + 'px';
   }
   addEventListener('resize', () => scale()); scale();
+
+  if (REDUCED) svg.pauseAnimations();
 
   // Controls stay outside the canvas; exports preserve the original framing.
   if (!CHECK && !LOOP) {
@@ -609,26 +722,36 @@
     themeSelect.value = activeTheme;
     themeSelect.addEventListener('change', () => {
       const url = new URL(location.href); url.searchParams.set('theme', themeSelect.value);
+      const geometric = new Set(['whiteboard', 'isometric']);
+      if (geometric.has(activeTheme) || geometric.has(themeSelect.value)) { location.href = url.href; return; }
       applyTheme(themeSelect.value);
       try { history.replaceState(null, '', url.href); } catch { /* Sandboxed previews can still switch themes. */ }
     });
     const pause = el('button', null, zh ? '暂停动画' : 'Pause motion', bar);
-    pause.type = 'button'; pause.disabled = STILL;
-    pause.setAttribute('aria-pressed', 'false');
+    pause.type = 'button';
+    if (REDUCED) { svg.pauseAnimations(); pause.textContent = zh ? '播放动画' : 'Play motion'; }
+    pause.setAttribute('aria-pressed', String(REDUCED));
     pause.addEventListener('click', () => {
       const paused = document.documentElement.classList.toggle('paused');
+      document.documentElement.classList.toggle('motion-on', !paused);
       if (paused) svg.pauseAnimations(); else svg.unpauseAnimations();
+      motionState.textContent = zh ? (paused ? '已暂停 · 点击继续播放' : '正在播放 · 关系方向保持不变') : (paused ? 'Paused' : 'Playing');
       pause.textContent = zh ? (paused ? '继续动画' : '暂停动画') : (paused ? 'Resume motion' : 'Pause motion');
       pause.setAttribute('aria-pressed', String(paused));
     });
+    const motionState = el('span', 'motion-state', null, bar);
+    motionState.setAttribute('role', 'status');
+    const count = svg.querySelectorAll('animateMotion').length;
+    motionState.textContent = !count ? (zh ? '静态关系图 · 本图没有调用或消息流' : 'Static relationships · no message flow') : REDUCED ? (zh ? '系统减少动态效果 · 点击播放动画' : 'Reduced motion · choose Play') : (zh ? '正在播放 · 光点表示消息传递' : 'Playing · dots represent messages');
+    pause.disabled = !count;
     let actual = false;
     const zoom = el('button', null, zh ? '原始尺寸' : 'Actual size', bar);
     zoom.type = 'button'; zoom.setAttribute('aria-pressed', 'false');
     const resize = scale;
     scale = function () {
       if (!actual) { resize(); return; }
-      if (useZoom) stage.style.zoom = 1; else stage.style.transform = 'none';
-      fit.style.height = H + 'px';
+      if (useZoom) scaleEl.style.zoom = 1; else scaleEl.style.transform = 'none';
+      fit.style.height = outH + 'px';
     };
     zoom.addEventListener('click', () => {
       actual = !actual;

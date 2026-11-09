@@ -1,6 +1,6 @@
 {
   "name": "@yuezheng2006/motion-map",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Motion Map: animated relationship, architecture and explainer diagrams from sources or structured notes",
   "type": "module",
   "bin": {
@@ -8,7 +8,7 @@
     "arch-diagram": "bin/cli.mjs"
   },
   "scripts": {
-    "test": "node test/color-injection.mjs && node tests/relations.mjs && node tests/controls.mjs && node tests/themes.mjs && node tests/explainer.mjs && node tests/semantics.mjs"
+    "test": "node test/color-injection.mjs && node tests/relations.mjs && node tests/controls.mjs && node tests/themes.mjs && node tests/explainer.mjs && node tests/semantics.mjs && node tests/motion.mjs && node tests/skins.mjs"
   },
   "files": [
     "bin",

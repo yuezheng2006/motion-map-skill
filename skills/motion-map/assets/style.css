@@ -118,7 +118,7 @@ svg#wires { position: absolute; left: 0; top: 0; overflow: visible; pointer-even
 @keyframes flow { from { stroke-dashoffset: 18; } to { stroke-dashoffset: 0; } }
 .lbl { font: 11px "JetBrains Mono", "SF Mono", Menlo, "PingFang SC", "Microsoft YaHei", monospace; }
 
-@media (prefers-reduced-motion: reduce) { .flow, .cursor, .st::before { animation: none !important; } }
+@media (prefers-reduced-motion: reduce) { html:not(.motion-on) .flow, html:not(.motion-on) .cursor, html:not(.motion-on) .st::before { animation: none !important; } }
 .check .flow, .check .cursor, .check .st::before { animation: none !important; }
 /* ?loop=4: every CSS period divides 4s so recordings repeat without a seam */
 .loop .flow { animation-duration: .5s; }
@@ -153,7 +153,7 @@ body { background: var(--page); min-height: 100vh; }
 .toolbar button:disabled { opacity: .5; cursor: default; }
 .paused *, .paused *::before { animation-play-state: paused !important; }
 .check .toolbar, .loop .toolbar { display: none; }
-@media (prefers-reduced-motion: reduce) { *, *::before { animation: none !important; transition: none !important; } }
+@media (prefers-reduced-motion: reduce) { html:not(.motion-on) *, html:not(.motion-on) *::before { animation: none !important; transition: none !important; } }
 @media print { .toolbar { display: none; } body { padding: 0; } #fit { box-shadow: none; } }
 
 /* Presentation mode: Baoyu-inspired linear progression × technical schematic.
@@ -185,3 +185,5 @@ body { background: var(--page); min-height: 100vh; }
 .sequence #head > .dim { font-size: 14px; margin-top: 8px; }
 .sequence .lbl { paint-order: stroke; stroke: var(--bg); stroke-width: 5px; stroke-linejoin: round; font-size: 13px; }
 .sequence .note { font-size: 12px; }
+
+.motion-state { color: var(--dim); font-size: 12px; }

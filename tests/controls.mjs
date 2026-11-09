@@ -32,6 +32,6 @@ try {
     console.log(`✓ pause/resume, zoom, resize, no page overflow (${width}px)`);
   }
   const still = runChrome(chrome, ['--force-prefers-reduced-motion=reduce', '--dump-dom', fileUrl(resolve('docs/atelier.html'))]);
-  if (!/button[^>]*disabled/.test(still) || still.includes('<animateMotion')) throw Error('reduced motion');
-  console.log('✓ reduced motion disables packets and pause control');
+  if (!/(播放动画|Play motion)/.test(still) || !still.includes('<animateMotion') || !/<html[^>]*class="[^"]*paused/.test(still)) throw Error('reduced motion');
+  console.log('✓ reduced motion starts paused with explicit playback available');
 } finally { rmSync(dir, { recursive: true, force: true }); }

@@ -61,7 +61,7 @@ node bin/cli.mjs check map.html preview.png
 node bin/cli.mjs export map.html map.png map.mp4 map.mmd --seconds 12 --theme sketch
 ```
 
-单文件 HTML 可离线打开，支持主题切换、暂停与原始尺寸查看。默认导出使用内嵌主题，也可用 `--theme paper|porcelain|blueprint|graphite|sketch` 覆盖。
+单文件 HTML 可离线打开，支持主题切换、暂停与原始尺寸查看。默认导出使用内嵌主题，也可用 `--theme paper|porcelain|blueprint|graphite|sketch|drafting|whiteboard|brutalism|crt|saas|isometric` 覆盖。
 
 ## 布局与主题
 
@@ -94,3 +94,9 @@ npm test
 `skills/motion-map/SKILL.md` 是技能入口；`references/spec.md` 说明规格；`scripts/` 提供构建、布局检查和导出；`assets/` 为渲染引擎与主题。保留 upstream remote，便于后续跟进基础修复。
 
 MIT，见 [LICENSE](LICENSE) 与 [NOTICE](NOTICE)。
+
+## 2.2.0：离线播放与七种视觉风格
+
+移植 upstream arch-diagram 1.3.0（`0fccfd4`）七种样式及白板线稿、等距沙盘布局：晒图蓝图、牛皮纸制图、白板手绘、粗野撞色、荧光终端、柔光卡片、3D 等距沙盘。保留 Motion Map 自有主题、双向关系、间接依赖校验及消息时序语义。同一份 JSON 使用 `--theme whiteboard` 即可重画，无需改内容。白板与等距风格切换会重新加载当前文件以重算几何布局。
+
+直接双击 HTML 即可离线播放，无需服务器或网络。系统启用“减少动态效果”时默认暂停，点击“播放动画”可主动开启；工具栏显示播放状态。消息光点加大，视频导出显式开启动画。依赖及普通关联线保持静态，只有消息/调用/交流流动，避免混淆关系与事件。平台附件预览若限制脚本，请下载 HTML 后用浏览器打开。`?check` 专供静态检查和 PNG。

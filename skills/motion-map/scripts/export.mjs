@@ -33,7 +33,7 @@ const LOOP = readSpec(htmlPath).kind === 'sequence' ? readSpec(htmlPath).sequenc
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 let chrome, diag;
-const need = () => { chrome ||= findChrome(); diag ||= readDiag(chrome, htmlPath); return pageSize(diag); };
+const need = () => { chrome ||= findChrome(); diag ||= readDiag(chrome, htmlPath, theme); return pageSize(diag); };
 
 for (const out of outs) {
   const ext = extname(out).toLowerCase();
@@ -119,7 +119,7 @@ async function capture(W, H, seconds) {
     await send('Page.enable');
     // without this the headless screen clamps tall pages
     await send('Emulation.setDeviceMetricsOverride', { width: W, height: H, deviceScaleFactor: SCALE, mobile: false, screenWidth: W, screenHeight: H });
-    await send('Page.navigate', { url: diagramUrl(`loop=${LOOP}`) });
+    await send('Page.navigate', { url: diagramUrl(`loop=${LOOP}&motion=on`) });
     await sleep(2200 + LOOP * 1000);   // every packet has started (begin ≤ 1.5s), fonts have settled and a live log has run one full cycle
     await send('Page.startScreencast', { format: 'jpeg', quality: 92, everyNthFrame: 1, maxWidth: W * SCALE, maxHeight: H * SCALE });
     await sleep(300);

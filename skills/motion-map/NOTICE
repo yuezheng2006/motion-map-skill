@@ -1,6 +1,6 @@
 Motion Map is maintained by yuezheng2006.
 
-Derived from bassnova42/arch-diagram-skill (MIT), based on upstream 879ca7f.
+Derived from bassnova42/arch-diagram-skill (MIT), based on upstream 879ca7f; visual styles and sketch/isometric rendering ported from upstream 1.3.0 (0fccfd4).
 Original copyright: Copyright (c) 2026 bassnova42.
 Original LICENSE is preserved without modification.
 Custom visual layouts, theme presets, relationship semantics, examples and packaging are maintained in this fork.

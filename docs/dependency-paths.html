@@ -125,7 +125,7 @@ svg#wires { position: absolute; left: 0; top: 0; overflow: visible; pointer-even
 @keyframes flow { from { stroke-dashoffset: 18; } to { stroke-dashoffset: 0; } }
 .lbl { font: 11px "JetBrains Mono", "SF Mono", Menlo, "PingFang SC", "Microsoft YaHei", monospace; }
 
-@media (prefers-reduced-motion: reduce) { .flow, .cursor, .st::before { animation: none !important; } }
+@media (prefers-reduced-motion: reduce) { html:not(.motion-on) .flow, html:not(.motion-on) .cursor, html:not(.motion-on) .st::before { animation: none !important; } }
 .check .flow, .check .cursor, .check .st::before { animation: none !important; }
 /* ?loop=4: every CSS period divides 4s so recordings repeat without a seam */
 .loop .flow { animation-duration: .5s; }
@@ -160,7 +160,7 @@ body { background: var(--page); min-height: 100vh; }
 .toolbar button:disabled { opacity: .5; cursor: default; }
 .paused *, .paused *::before { animation-play-state: paused !important; }
 .check .toolbar, .loop .toolbar { display: none; }
-@media (prefers-reduced-motion: reduce) { *, *::before { animation: none !important; transition: none !important; } }
+@media (prefers-reduced-motion: reduce) { html:not(.motion-on) *, html:not(.motion-on) *::before { animation: none !important; transition: none !important; } }
 @media print { .toolbar { display: none; } body { padding: 0; } #fit { box-shadow: none; } }
 
 /* Presentation mode: Baoyu-inspired linear progression × technical schematic.
@@ -192,6 +192,8 @@ body { background: var(--page); min-height: 100vh; }
 .sequence #head > .dim { font-size: 14px; margin-top: 8px; }
 .sequence .lbl { paint-order: stroke; stroke: var(--bg); stroke-width: 5px; stroke-linejoin: round; font-size: 13px; }
 .sequence .note { font-size: 12px; }
+
+.motion-state { color: var(--dim); font-size: 12px; }
 
 /* Explainer: annotated storyboard, inspired by the user's hand-drawn reference. */
 .explainer body { font-family: var(--font-body, -apple-system, sans-serif); font-size: 15px; }
@@ -240,11 +242,87 @@ body { background: var(--page); min-height: 100vh; }
 .explainer .shape-callout { background: var(--fill-callout, color-mix(in srgb, var(--amber) 18%, var(--panel))); }
 .explainer .shape-store { background: var(--fill-store, color-mix(in srgb, var(--purple) 14%, var(--panel))); }
 
+/* Upstream 1.3.0: blueprint */
+html[data-theme="blueprint"] body {
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(rgba(255, 255, 255, .15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, .15) 1px, transparent 1px),
+    linear-gradient(rgba(255, 255, 255, .06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, .06) 1px, transparent 1px);
+  background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
+}html[data-theme="blueprint"] #fit { outline: 2px solid var(--text); outline-offset: 12px; box-shadow: 0 0 0 6px var(--bg), 0 0 0 7px var(--dim); }html[data-theme="blueprint"] #head .t { letter-spacing: 2px; }html[data-theme="blueprint"] #head .rule { border-top-style: solid; border-color: var(--faint); }html[data-theme="blueprint"] .box { background: var(--panel); }html[data-theme="blueprint"] .lbl { font-style: italic; }html[data-theme="blueprint"] .group .glg, html[data-theme="blueprint"] .st, html[data-theme="blueprint"] #log .legend { letter-spacing: .5px; }
+
+/* Upstream 1.3.0: drafting */
+html[data-theme="drafting"] body, html[data-theme="drafting"] .lbl {
+  font-family: "Iowan Old Style", "Palatino", "Georgia", "Songti SC", "STSong", "Noto Serif CJK SC", "Source Han Serif SC", "SimSun", serif;
+}html[data-theme="drafting"]:lang(ja) body, html[data-theme="drafting"]:lang(ja) .lbl { font-family: "Iowan Old Style", Georgia, "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif; }html[data-theme="drafting"]:lang(ko) body, html[data-theme="drafting"]:lang(ko) .lbl { font-family: "Iowan Old Style", Georgia, "AppleMyungjo", "Batang", "Noto Serif KR", serif; }html[data-theme="drafting"]:lang(th) body, html[data-theme="drafting"]:lang(th) .lbl { font-family: "Iowan Old Style", Georgia, Thonburi, "Leelawadee UI", "Noto Serif Thai", serif; }html[data-theme="drafting"] body {
+  background-color: var(--bg);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.85' numOctaves='2' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 .42 0 0 0 0 .36 0 0 0 0 .24 0 0 0 .08 0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E");
+}html[data-theme="drafting"] #fit { outline: 1.6px solid var(--text); outline-offset: 12px; box-shadow: 0 0 0 6px var(--bg), 0 0 0 7px var(--text); }html[data-theme="drafting"] #head .t { font-size: 16px; letter-spacing: 1px; }html[data-theme="drafting"] #head .rule { border-top: 1px solid var(--text); }html[data-theme="drafting"] .box { background: var(--panel); border-width: 1.2px; outline: .6px solid var(--c); outline-offset: -5px; }html[data-theme="drafting"] .box.dash, html[data-theme="drafting"] .box.is-none, html[data-theme="drafting"] .box.is-off, html[data-theme="drafting"] .box.is-dev { outline-style: dashed; }html[data-theme="drafting"] .box:hover { box-shadow: none; }html[data-theme="drafting"] .box[data-n]::after {
+  content: attr(data-n); position: absolute; left: -11px; top: -11px; width: 20px; height: 20px;
+  border: 1px solid var(--text); border-radius: 50%; background: var(--bg); color: var(--text);
+  font-size: 11px; line-height: 18px; text-align: center; font-style: italic;
+}html[data-theme="drafting"] .lbl { font-style: italic; }html[data-theme="drafting"] .chip, html[data-theme="drafting"] .tag { border-radius: 2px; }html[data-theme="drafting"] #log { border-color: var(--text); background: color-mix(in srgb, var(--panel) 60%, transparent); }
+
+/* Upstream 1.3.0: whiteboard */
+html[data-theme="whiteboard"] body, html[data-theme="whiteboard"] .lbl {
+  font-family: "Xiaolai SC", "LXGW WenKai", "Hannotate SC", "HanziPen SC", "Chalkboard SE", "Segoe Print", "Comic Sans MS", "Kaiti SC", "STKaiti", "KaiTi", cursive;
+}html[data-theme="whiteboard"]:lang(ja) body, html[data-theme="whiteboard"]:lang(ja) .lbl { font-family: "Klee", "Chalkboard SE", "Segoe Print", "Hiragino Maru Gothic ProN", "Yu Gothic", cursive; }html[data-theme="whiteboard"]:lang(ko) body, html[data-theme="whiteboard"]:lang(ko) .lbl { font-family: "Nanum Pen Script", "Chalkboard SE", "Segoe Print", "Apple SD Gothic Neo", cursive; }html[data-theme="whiteboard"]:lang(th) body, html[data-theme="whiteboard"]:lang(th) .lbl { font-family: "Chalkboard SE", "Segoe Print", Thonburi, "Leelawadee UI", cursive; }html[data-theme="whiteboard"] .box { background: transparent; border-color: transparent; }html[data-theme="whiteboard"] .box:hover { background: color-mix(in srgb, var(--c) 8%, transparent); box-shadow: none; }html[data-theme="whiteboard"] .group { border-color: transparent; }html[data-theme="whiteboard"] #head .t { display: inline-block; font-size: 16px; padding: 0 6px;
+  background: linear-gradient(transparent 58%, color-mix(in srgb, var(--amber) 40%, transparent) 58%, color-mix(in srgb, var(--amber) 40%, transparent) 92%, transparent 92%); }html[data-theme="whiteboard"] #head .rule { border-top: 1.5px dashed var(--faint); }html[data-theme="whiteboard"] .chip, html[data-theme="whiteboard"] .tag { border-radius: 8px 3px 9px 4px; }html[data-theme="whiteboard"] #log { border: 1.5px dashed var(--faint); border-radius: 6px; }html[data-theme="whiteboard"] .cursor { background: var(--text); }
+
+/* Upstream 1.3.0: brutalism */
+html[data-theme="brutalism"] body, html[data-theme="brutalism"] .lbl {
+  font-family: "Inter", "Helvetica Neue", "Arial", "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+}html[data-theme="brutalism"] body { font-weight: 500; }html[data-theme="brutalism"] .lbl { font-weight: 800; }html[data-theme="brutalism"] #head .t { display: inline-block; background: #000; color: var(--bg); padding: 3px 14px; font-size: 15px; font-weight: 900; }html[data-theme="brutalism"] #head .rule { border-top: 3px solid #000; }html[data-theme="brutalism"] .sq { border: 1.5px solid #000; }html[data-theme="brutalism"] .box {
+  background: color-mix(in srgb, var(--c) 40%, #fff);
+  border: 2px solid #000; box-shadow: 6px 6px 0 #000;
+  padding: 8px 14px;
+}html[data-theme="brutalism"] .box:hover { background: color-mix(in srgb, var(--c) 58%, #fff); box-shadow: 8px 8px 0 #000; }html[data-theme="brutalism"] .ttl { font-weight: 900; color: #000; }html[data-theme="brutalism"] .sub { color: #000; font-weight: 700; }html[data-theme="brutalism"] .box .dim { color: rgba(0, 0, 0, .72); }html[data-theme="brutalism"] .mods td.n { color: #000; font-weight: 700; }html[data-theme="brutalism"] .hr { border-top: 2px solid #000; }html[data-theme="brutalism"] .group { border: 2.5px dashed #000; }html[data-theme="brutalism"] .group.solid { border-style: solid; }html[data-theme="brutalism"] .group .glg { background: #000; color: var(--bg); font-weight: 800; }html[data-theme="brutalism"] .chip, html[data-theme="brutalism"] .tag { border: 1.5px solid #000; color: #000; background: #fff; font-weight: 700; }html[data-theme="brutalism"] .chip.q { border-style: dashed; }html[data-theme="brutalism"] .st { background: #fff; border: 2px solid #000; top: -12px; font-weight: 800; }html[data-theme="brutalism"] .stl { border: 2px solid #000; }html[data-theme="brutalism"] .rail .vl { border-left: 2px dashed #000; }html[data-theme="brutalism"] .hl { background: #000; color: var(--bg); }html[data-theme="brutalism"] #log { border: 2.5px solid #000; background: #fff; box-shadow: 6px 6px 0 #000; }html[data-theme="brutalism"] #log .legend { background: #000; color: var(--bg); font-weight: 800; }html[data-theme="brutalism"] .cursor { background: #000; }
+
+/* Upstream 1.3.0: crt */
+html[data-theme="crt"] body, html[data-theme="crt"] .lbl { font-family: "IBM Plex Mono", "JetBrains Mono", "SF Mono", Menlo, "PingFang SC", "Microsoft YaHei", monospace; }html[data-theme="crt"] body { text-shadow: 0 0 3px color-mix(in srgb, currentColor 55%, transparent); }html[data-theme="crt"] #wires .wire { filter: drop-shadow(0 0 2.5px rgba(77, 255, 136, .6)); }html[data-theme="crt"] #wires text { filter: drop-shadow(0 0 1.5px rgba(77, 255, 136, .35)); }html[data-theme="crt"] #head .t::before { content: "> "; color: var(--dim); }html[data-theme="crt"] .box {
+  outline: 1px solid color-mix(in srgb, var(--c) 45%, transparent); outline-offset: -5px;
+  box-shadow: 0 0 12px color-mix(in srgb, var(--c) 22%, transparent), inset 0 0 18px color-mix(in srgb, var(--c) 10%, transparent);
+}html[data-theme="crt"] .box.dash, html[data-theme="crt"] .box.is-none, html[data-theme="crt"] .box.is-off, html[data-theme="crt"] .box.is-dev { outline-style: dashed; }html[data-theme="crt"] .box:hover { box-shadow: 0 0 20px color-mix(in srgb, var(--c) 40%, transparent), inset 0 0 24px color-mix(in srgb, var(--c) 18%, transparent); }html[data-theme="crt"] body::after {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 10;
+  background:
+    repeating-linear-gradient(to bottom, rgba(0, 0, 0, .26) 0 2px, transparent 2px 4px),
+    radial-gradient(ellipse at center, transparent 58%, rgba(0, 0, 0, .55) 100%);
+}
+
+/* Upstream 1.3.0: saas */
+html[data-theme="saas"] body, html[data-theme="saas"] .lbl {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+}html[data-theme="saas"] body { background-image: radial-gradient(#d3d8e6 1px, transparent 1.2px); background-size: 22px 22px; }html[data-theme="saas"] #head .t { font-size: 17px; letter-spacing: 0; }html[data-theme="saas"] #head .rule { border-top: 1px solid #e3e7f0; }html[data-theme="saas"] .sq { border-radius: 3px; }html[data-theme="saas"] .box {
+  background: #fff; border: 1px solid #e3e7f0; border-radius: 14px;
+  box-shadow: inset 0 3px 0 var(--c), 0 8px 24px rgba(30, 42, 85, .08), 0 1px 2px rgba(30, 42, 85, .06);
+}html[data-theme="saas"] .box.dash, html[data-theme="saas"] .box.is-none, html[data-theme="saas"] .box.is-off, html[data-theme="saas"] .box.is-dev { border-color: #c3cad9; }html[data-theme="saas"] .box:hover { background: #fff; box-shadow: inset 0 3px 0 var(--c), 0 14px 32px rgba(30, 42, 85, .14), 0 1px 2px rgba(30, 42, 85, .06); }html[data-theme="saas"] .ttl { font-weight: 650; }html[data-theme="saas"] .sub { font-weight: 500; }html[data-theme="saas"] .hr { border-top: 1px solid #edf0f6; }html[data-theme="saas"] .group { border: 1.5px dashed color-mix(in srgb, var(--c) 50%, #fff); border-radius: 18px; background: color-mix(in srgb, var(--c) 4%, transparent); }html[data-theme="saas"] .group.solid { border-style: solid; }html[data-theme="saas"] .group .glg { border-radius: 10px; font-weight: 600; }html[data-theme="saas"] .chip { border-radius: 999px; background: color-mix(in srgb, var(--c) 8%, #fff); border-color: color-mix(in srgb, var(--c) 35%, #fff); }html[data-theme="saas"] .tag { border-radius: 999px; }html[data-theme="saas"] .st { border-radius: 999px; border: 1px solid #e3e7f0; background: #fff; }html[data-theme="saas"] .hl { border-radius: 8px; }html[data-theme="saas"] #log { border: 1px solid #e3e7f0; border-radius: 14px; background: #fff; box-shadow: 0 8px 24px rgba(30, 42, 85, .06); }html[data-theme="saas"] #log .legend { background: #fff; border: 1px solid #e3e7f0; border-radius: 999px; padding: 0 10px; }
+
+/* Upstream 1.3.0: isometric */
+html[data-theme="isometric"] body, html[data-theme="isometric"] .lbl {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+}html[data-theme="isometric"], html[data-theme="isometric"] body { background: linear-gradient(#f3f6fc, #dde6f3) fixed; }html[data-theme="isometric"] #head .t { font-size: 17px; }html[data-theme="isometric"] #head .rule { border-top: 1px solid #d4dcea; }html[data-theme="isometric"] #isoWrap { position: relative; overflow: hidden; }html[data-theme="isometric"] #isoWrap > #stage { position: absolute; left: 0; top: 0; transform-origin: 0 0; }html[data-theme="isometric"] #isoFoot #log { position: relative; margin: 24px 16px 0; border-radius: 10px; background: rgba(255, 255, 255, .7); border-color: #d4dcea; }html[data-theme="isometric"] #isoFoot #status { position: relative; margin: 20px 16px 0; }html[data-theme="isometric"] #stage.iso {
+  background-image: linear-gradient(#c9d4e6 1px, transparent 1px), linear-gradient(90deg, #c9d4e6 1px, transparent 1px);
+  background-size: 40px 40px;
+}html[data-theme="isometric"] .box {
+  --x: color-mix(in srgb, var(--c) 62%, #1a2440);
+  background: color-mix(in srgb, var(--c) 24%, #fff);
+  border: 1.5px solid color-mix(in srgb, var(--c) 75%, #16213a);
+
+  box-shadow: 1px 1px 0 var(--x), 2px 2px 0 var(--x), 3px 3px 0 var(--x), 4px 4px 0 var(--x), 5px 5px 0 var(--x),
+              6px 6px 0 var(--x), 7px 7px 0 var(--x), 8px 8px 0 var(--x), 9px 9px 0 var(--x), 10px 10px 0 var(--x),
+              16px 16px 12px rgba(22, 33, 58, .22);
+}html[data-theme="isometric"] .box:hover { background: color-mix(in srgb, var(--c) 36%, #fff);
+  box-shadow: 1px 1px 0 var(--x), 2px 2px 0 var(--x), 3px 3px 0 var(--x), 4px 4px 0 var(--x), 5px 5px 0 var(--x),
+              6px 6px 0 var(--x), 7px 7px 0 var(--x), 8px 8px 0 var(--x), 9px 9px 0 var(--x), 10px 10px 0 var(--x),
+              18px 18px 14px rgba(22, 33, 58, .3); }html[data-theme="isometric"] .ttl { font-weight: 700; }html[data-theme="isometric"] .group { border: 1.5px dashed var(--c); background: color-mix(in srgb, var(--c) 7%, transparent); }html[data-theme="isometric"] .group.solid { border-style: solid; }html[data-theme="isometric"] .chip { background: #fff; border-radius: 4px; }html[data-theme="isometric"] .st { border-radius: 999px; }
+
 </style>
 </head>
 <body>
 <script id="themes" type="application/json">
-{"paper":{"label":{"zh":"暖纸","en":"Paper"},"tokens":{"bg":"#f5f0e6","page":"#eae4d8","panel":"#fffdf8","text":"#303b38","head":"#192923","dim":"#5f6961","faint":"#a7b0a7","cyan":"#21695f","blue":"#365d78","green":"#35663c","purple":"#6c5277","amber":"#885f25","orange":"#9a4e20","red":"#a13737","border":"#d8cebc","grid":"#ded5c4","surface-subtle":"#ebece1","surface-hover":"#e5ebe1","shadow":"#233b2c0a","trace-flash":"#dde9df","step-ink":"#97502e","radius":"12px","color-scheme":"light","fill-router":"#dbe0e1","fill-worker":"#dbe2d6","fill-callout":"#eae1d2","fill-store":"#e5dee1"}},"porcelain":{"label":{"zh":"冷瓷","en":"Porcelain"},"tokens":{"bg":"#f5f8fc","page":"#e9eef5","panel":"#ffffff","text":"#314258","head":"#172d46","dim":"#5a6c82","faint":"#9aaabe","cyan":"#186c73","blue":"#305fab","green":"#326c50","purple":"#755394","amber":"#815c22","orange":"#9d502c","red":"#ac3849","border":"#d1dce9","grid":"#dde5f0","surface-subtle":"#eaf0f7","surface-hover":"#e0eaf6","shadow":"#22476b0a","trace-flash":"#d6e7f4","step-ink":"#305fab","radius":"8px","color-scheme":"light","fill-router":"#dae2f0","fill-worker":"#dae5e0","fill-callout":"#e8e2d7","fill-store":"#e6e0ec"}},"blueprint":{"label":{"zh":"蓝图","en":"Blueprint"},"tokens":{"bg":"#0d2137","page":"#081727","panel":"#142e48","text":"#d1e0ef","head":"#eef6ff","dim":"#a3b7cf","faint":"#637c97","cyan":"#70d1db","blue":"#93baff","green":"#8ad5ad","purple":"#c6a8ef","amber":"#e8c47b","orange":"#f3ad7f","red":"#ff9c9c","border":"#35536e","grid":"#1a3650","surface-subtle":"#10283f","surface-hover":"#203d58","shadow":"#00000025","trace-flash":"#294b53","step-ink":"#e8c47b","radius":"3px","color-scheme":"dark","fill-router":"#2b4769","fill-worker":"#294c5a","fill-callout":"#3a4951","fill-store":"#344466"}},"graphite":{"label":{"zh":"石墨","en":"Graphite"},"tokens":{"bg":"#1b1c1f","page":"#121315","panel":"#27292d","text":"#d6d3cd","head":"#f2efea","dim":"#b0aea8","faint":"#747775","cyan":"#83c9bb","blue":"#9ab9d6","green":"#a5c18d","purple":"#c3add2","amber":"#d9bc81","orange":"#e0a587","red":"#eca0a0","border":"#484a4d","grid":"#2c2e31","surface-subtle":"#222427","surface-hover":"#35383b","shadow":"#00000020","trace-flash":"#35433b","step-ink":"#e0a587","radius":"14px","color-scheme":"dark","fill-router":"#3c434b","fill-worker":"#3e443e","fill-callout":"#47433c","fill-store":"#43414b"}},"sketch":{"label":{"zh":"手绘讲解","en":"Sketch"},"tokens":{"bg":"#ffffff","page":"#f4f7fb","panel":"#ffffff","text":"#1f2830","head":"#101820","dim":"#46535f","faint":"#90a2b6","cyan":"#076bc1","blue":"#075bb8","green":"#137137","purple":"#6f39bc","amber":"#9e5407","orange":"#a94616","red":"#ae3030","border":"#bbccdf","grid":"#ffffff","surface-subtle":"#f1f6fc","surface-hover":"#e5f1fd","shadow":"#00000000","trace-flash":"#dceedd","step-ink":"#075bb8","radius":"14px","color-scheme":"light","highlight":"#ffe777","font-display":"\"Kaiti SC\", \"STKaiti\", \"KaiTi\", \"Comic Sans MS\", \"PingFang SC\", sans-serif","font-body":"\"Kaiti SC\", \"STKaiti\", \"KaiTi\", \"PingFang SC\", sans-serif","fill-router":"#a8dbfb","fill-worker":"#c1f1c4","fill-callout":"#ffe7b7","fill-store":"#e1ccff"}}}
+{"paper":{"label":{"zh":"暖纸","en":"Paper"},"tokens":{"bg":"#f5f0e6","page":"#eae4d8","panel":"#fffdf8","text":"#303b38","head":"#192923","dim":"#5f6961","faint":"#a7b0a7","cyan":"#21695f","blue":"#365d78","green":"#35663c","purple":"#6c5277","amber":"#885f25","orange":"#9a4e20","red":"#a13737","border":"#d8cebc","grid":"#ded5c4","surface-subtle":"#ebece1","surface-hover":"#e5ebe1","shadow":"#233b2c0a","trace-flash":"#dde9df","step-ink":"#97502e","radius":"12px","color-scheme":"light","fill-router":"#dbe0e1","fill-worker":"#dbe2d6","fill-callout":"#eae1d2","fill-store":"#e5dee1"}},"porcelain":{"label":{"zh":"冷瓷","en":"Porcelain"},"tokens":{"bg":"#f5f8fc","page":"#e9eef5","panel":"#ffffff","text":"#314258","head":"#172d46","dim":"#5a6c82","faint":"#9aaabe","cyan":"#186c73","blue":"#305fab","green":"#326c50","purple":"#755394","amber":"#815c22","orange":"#9d502c","red":"#ac3849","border":"#d1dce9","grid":"#dde5f0","surface-subtle":"#eaf0f7","surface-hover":"#e0eaf6","shadow":"#22476b0a","trace-flash":"#d6e7f4","step-ink":"#305fab","radius":"8px","color-scheme":"light","fill-router":"#dae2f0","fill-worker":"#dae5e0","fill-callout":"#e8e2d7","fill-store":"#e6e0ec"}},"blueprint":{"label":{"zh":"晒图蓝图","en":"Blueprint"},"tokens":{"bg":"#1b4c8f","page":"#1b4c8f","panel":"#1d5296","text":"#e3efff","head":"#ffffff","dim":"#d5e7f5","faint":"#6f98cc","cyan":"#7ff0ff","blue":"#a8d0ff","green":"#a8f0b8","purple":"#d4bcff","amber":"#ffd98a","orange":"#ffbf80","red":"#ff9b94","border":"#484a4d","grid":"#2c2e31","surface-subtle":"#1d5296","surface-hover":"#35383b","shadow":"#00000020","trace-flash":"#2a62ab","step-ink":"#e0a587","radius":"14px","color-scheme":"dark","fill-router":"#3c434b","fill-worker":"#3e443e","fill-callout":"#47433c","fill-store":"#43414b","flash":"#2a62ab"}},"graphite":{"label":{"zh":"石墨","en":"Graphite"},"tokens":{"bg":"#1b1c1f","page":"#121315","panel":"#27292d","text":"#d6d3cd","head":"#f2efea","dim":"#b0aea8","faint":"#747775","cyan":"#83c9bb","blue":"#9ab9d6","green":"#a5c18d","purple":"#c3add2","amber":"#d9bc81","orange":"#e0a587","red":"#eca0a0","border":"#484a4d","grid":"#2c2e31","surface-subtle":"#222427","surface-hover":"#35383b","shadow":"#00000020","trace-flash":"#35433b","step-ink":"#e0a587","radius":"14px","color-scheme":"dark","fill-router":"#3c434b","fill-worker":"#3e443e","fill-callout":"#47433c","fill-store":"#43414b"}},"sketch":{"label":{"zh":"手绘讲解","en":"Sketch"},"tokens":{"bg":"#ffffff","page":"#f4f7fb","panel":"#ffffff","text":"#1f2830","head":"#101820","dim":"#46535f","faint":"#90a2b6","cyan":"#076bc1","blue":"#075bb8","green":"#137137","purple":"#6f39bc","amber":"#9e5407","orange":"#a94616","red":"#ae3030","border":"#bbccdf","grid":"#ffffff","surface-subtle":"#f1f6fc","surface-hover":"#e5f1fd","shadow":"#00000000","trace-flash":"#dceedd","step-ink":"#075bb8","radius":"14px","color-scheme":"light","highlight":"#ffe777","font-display":"\"Kaiti SC\", \"STKaiti\", \"KaiTi\", \"Comic Sans MS\", \"PingFang SC\", sans-serif","font-body":"\"Kaiti SC\", \"STKaiti\", \"KaiTi\", \"PingFang SC\", sans-serif","fill-router":"#a8dbfb","fill-worker":"#c1f1c4","fill-callout":"#ffe7b7","fill-store":"#e1ccff"}},"drafting":{"label":{"zh":"牛皮纸制图","en":"Drafting"},"tokens":{"bg":"#f1e9d4","page":"#f1e9d4","panel":"#f7f1e1","text":"#2a2723","head":"#1b1915","dim":"#46505a","faint":"#a39a86","cyan":"#2b7f86","blue":"#2f5d9e","green":"#3d7a3a","purple":"#6b4c9a","amber":"#a8661b","orange":"#c0612b","red":"#b23a2a","border":"#d1dce9","grid":"#dde5f0","surface-subtle":"#f7f1e1","surface-hover":"#e0eaf6","shadow":"#22476b0a","trace-flash":"#e6dcc0","step-ink":"#305fab","radius":"8px","color-scheme":"light","fill-router":"#dae2f0","fill-worker":"#dae5e0","fill-callout":"#e8e2d7","fill-store":"#e6e0ec","flash":"#e6dcc0"}},"whiteboard":{"label":{"zh":"白板手绘","en":"Whiteboard"},"tokens":{"bg":"#fcfbf7","page":"#fcfbf7","panel":"#fcfbf7","text":"#2c2c2c","head":"#1e1e1e","dim":"#46505a","faint":"#a3a3a3","cyan":"#0e9aa7","blue":"#2f6fd6","green":"#2f9e44","purple":"#7b4fd6","amber":"#e08a00","orange":"#f76707","red":"#e03131","border":"#d1dce9","grid":"#dde5f0","surface-subtle":"#fcfbf7","surface-hover":"#e0eaf6","shadow":"#22476b0a","trace-flash":"#fff1c2","step-ink":"#305fab","radius":"8px","color-scheme":"light","fill-router":"#dae2f0","fill-worker":"#dae5e0","fill-callout":"#e8e2d7","fill-store":"#e6e0ec","flash":"#fff1c2"}},"brutalism":{"label":{"zh":"粗野撞色","en":"Brutalism"},"tokens":{"bg":"#fff3d1","page":"#fff3d1","panel":"#ffffff","text":"#111111","head":"#000000","dim":"#46505a","faint":"#000000","cyan":"#00a5b5","blue":"#3d6bff","green":"#1f9d3a","purple":"#8b4dff","amber":"#e09400","orange":"#ff6a00","red":"#e5281e","border":"#d1dce9","grid":"#dde5f0","surface-subtle":"#ffffff","surface-hover":"#e0eaf6","shadow":"#22476b0a","trace-flash":"#ffe066","step-ink":"#305fab","radius":"8px","color-scheme":"light","fill-router":"#dae2f0","fill-worker":"#dae5e0","fill-callout":"#e8e2d7","fill-store":"#e6e0ec","flash":"#ffe066"}},"crt":{"label":{"zh":"荧光终端","en":"Crt"},"tokens":{"bg":"#04110a","page":"#04110a","panel":"#061a10","text":"#4dff88","head":"#c8ffd9","dim":"#acc4d4","faint":"#17643a","cyan":"#66fcf1","blue":"#7fb2ff","green":"#4dff88","purple":"#d29bff","amber":"#ffb347","orange":"#ff9e3d","red":"#ff5f56","border":"#484a4d","grid":"#2c2e31","surface-subtle":"#061a10","surface-hover":"#35383b","shadow":"#00000020","trace-flash":"#0d3a20","step-ink":"#e0a587","radius":"14px","color-scheme":"dark","fill-router":"#3c434b","fill-worker":"#3e443e","fill-callout":"#47433c","fill-store":"#43414b","flash":"#0d3a20"}},"saas":{"label":{"zh":"柔光卡片","en":"Saas"},"tokens":{"bg":"#f6f7fb","page":"#f6f7fb","panel":"#ffffff","text":"#3b4560","head":"#1b2340","dim":"#46505a","faint":"#d5dae6","cyan":"#0ea5b7","blue":"#4f7cff","green":"#16a34a","purple":"#8b5cf6","amber":"#d97706","orange":"#f97316","red":"#e5484d","border":"#d1dce9","grid":"#dde5f0","surface-subtle":"#ffffff","surface-hover":"#e0eaf6","shadow":"#22476b0a","trace-flash":"#eaf0ff","step-ink":"#305fab","radius":"8px","color-scheme":"light","fill-router":"#dae2f0","fill-worker":"#dae5e0","fill-callout":"#e8e2d7","fill-store":"#e6e0ec","flash":"#eaf0ff"}},"isometric":{"label":{"zh":"3D 等距沙盘","en":"Isometric"},"tokens":{"bg":"#eef3fb","page":"#eef3fb","panel":"#ffffff","text":"#2a3756","head":"#16213a","dim":"#46505a","faint":"#b4c0d4","cyan":"#0e9fb0","blue":"#3b6fe0","green":"#1f9d55","purple":"#7c4ddb","amber":"#d98a0b","orange":"#f07a1a","red":"#e0413a","border":"#d1dce9","grid":"#dde5f0","surface-subtle":"#ffffff","surface-hover":"#e0eaf6","shadow":"#22476b0a","trace-flash":"#dfe8f7","step-ink":"#305fab","radius":"8px","color-scheme":"light","fill-router":"#dae2f0","fill-worker":"#dae5e0","fill-callout":"#e8e2d7","fill-store":"#e6e0ec","flash":"#dfe8f7"}}}
 </script>
 <script id="spec" type="application/json">
 {
@@ -504,16 +582,30 @@ function resolveMotionEdge(edge, flow = {}) {
     activeTheme = safeTheme(name);
     const root = document.documentElement;
     root.dataset.theme = activeTheme;
+    root.removeAttribute('style');
     for (const [key, value] of Object.entries(THEMES[activeTheme].tokens)) root.style.setProperty('--' + key, value);
     root.style.colorScheme = THEMES[activeTheme].tokens['color-scheme'];
   }
   applyTheme(activeTheme);
   const CHECK = /[?&]check\b/.test(location.search);
   if (CHECK) document.documentElement.classList.add('check');
-  const STILL = CHECK || matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches && params.get('motion') !== 'on';
+  const STILL = CHECK;
+  document.documentElement.classList.toggle('paused', REDUCED);
+  document.documentElement.classList.toggle('motion-on', !REDUCED);
   // ?loop=P makes every animation periodic in P seconds, so a P-second recording repeats seamlessly
   const LOOP = +(new URLSearchParams(location.search).get('loop') || 0);
   if (LOOP) document.documentElement.classList.add('loop');
+  const TH = Object.assign({ ww: 1.4, dash: '5 4', cap: 'butt', join: 'miter', arrow: 9.8, arrowShape: 'solid', round: 0,
+    sketch: false, labelBox: null, labelColor: 'dim', startDot: false, iso: false }, {
+    blueprint:  { ww: 1.3, dash: '12 6', marks: true },
+    drafting:   { ww: 1.1, dash: '10 3 2 3', startDot: true },
+    whiteboard: { ww: 1.8, dash: '10 8', cap: 'round', join: 'round', arrow: 13, arrowShape: 'open', sketch: true },
+    brutalism:  { ww: 3, dash: '12 6', arrow: 15, labelBox: 'brutal', labelColor: 'text' },
+    crt:        { ww: 1.6, dash: '4 5', join: 'round' },
+    saas:       { ww: 1.8, dash: '0 6', cap: 'round', join: 'round', round: 14, labelBox: 'pill' },
+    isometric:  { ww: 2, dash: '6 3', join: 'round', round: 8, labelBox: 'halo', iso: true },
+  }[activeTheme] || {});
   const W = S.width || 1080;
   const NS = 'http://www.w3.org/2000/svg';
   const SHORT = { bl: 'blue', cy: 'cyan', gr: 'green', am: 'amber', pu: 'purple', rd: 'red', or: 'orange' };
@@ -635,7 +727,7 @@ function resolveMotionEdge(edge, flow = {}) {
   const rails = [];
   for (const n of S.nodes || []) {
     const d = el('div', 'box' + (n.dashed ? ' dash' : '') + (n.status ? ' is-' + n.status : '') + (n.kind === 'rail' ? ' rail' : ''), null, stage);
-    d.id = n.id;
+    d.id = n.id; d.dataset.n = (S.nodes || []).indexOf(n) + 1;
     if (SHAPES.has(n.shape)) d.classList.add('shape-' + n.shape);
     if (n.h && n.h < 75) d.classList.add('compact');
     if (Object.hasOwn(ICONS, n.icon)) {
@@ -834,6 +926,64 @@ function resolveMotionEdge(edge, flow = {}) {
     }
     return va ? [A, [A[0], Z[1]], Z] : [A, [Z[0], A[1]], Z];
   }
+  // seeded jitter: hand-drawn strokes look the same on every load, so checks and video loops are stable
+  let seed = 20240607;
+  const rnd = () => (seed = seed * 16807 % 2147483647) / 2147483647 - 0.5;
+  function wobble(pts, amp = 1.4) {
+    let d = `M${pts[0][0]},${pts[0][1]}`;
+    for (let i = 1; i < pts.length; i++) {
+      const [x1, y1] = pts[i - 1], [x2, y2] = pts[i], last = i === pts.length - 1;
+      const n = Math.max(1, Math.round(Math.hypot(x2 - x1, y2 - y1) / 46));
+      for (let s = 1; s <= n; s++) {
+        const t = s / n, tm = (s - 0.5) / n, end = last && s === n;
+        const jitter = end || (i === 1 && s === 1) ? 0 : amp;
+        const x = x1 + (x2 - x1) * t + (end ? 0 : rnd() * amp), y = y1 + (y2 - y1) * t + (end ? 0 : rnd() * amp);
+        d += ` Q${(x1 + (x2 - x1) * tm + rnd() * jitter * 2).toFixed(1)},${(y1 + (y2 - y1) * tm + rnd() * jitter * 2).toFixed(1)} ${x.toFixed(1)},${y.toFixed(1)}`;
+      }
+    }
+    return d;
+  }
+  function wirePath(pts) {
+    if (TH.sketch) return wobble(pts);
+    if (!TH.round) return 'M' + pts.map(q => q.join(',')).join(' L');
+    let d = `M${pts[0]}`;
+    for (let i = 1; i < pts.length - 1; i++) {
+      const p = pts[i - 1], q = pts[i], r = pts[i + 1];
+      const l1 = Math.hypot(q[0] - p[0], q[1] - p[1]), l2 = Math.hypot(r[0] - q[0], r[1] - q[1]);
+      if (!l1 || !l2) continue;
+      const k = Math.min(TH.round, l1 / 2, l2 / 2);
+      d += ` L${q[0] - (q[0] - p[0]) / l1 * k},${q[1] - (q[1] - p[1]) / l1 * k} Q${q} ${q[0] + (r[0] - q[0]) / l2 * k},${q[1] + (r[1] - q[1]) / l2 * k}`;
+    }
+    return d + ` L${pts[pts.length - 1]}`;
+  }
+  // whiteboard: boxes and groups are drawn as sketched outlines with a hatched fill, under the wires
+  function sketchBoxes() {
+    const g = document.createElementNS(NS, 'g'); g.setAttribute('class', 'sketch');
+    svg.insertBefore(g, defs.nextSibling);
+    const add = (tag, attrs, parent = g) => {
+      const x = document.createElementNS(NS, tag);
+      for (const [a, v] of Object.entries(attrs)) x.setAttribute(a, v);
+      parent.appendChild(x); return x;
+    };
+    const ink = cssv('head');
+    [...stage.querySelectorAll('.group, .box')].forEach((b, i) => {
+      const r = R(b), c = getComputedStyle(b).getPropertyValue('--c').trim() || cssv('faint');
+      const rect = [[r.l, r.t], [r.r, r.t], [r.r, r.b], [r.l, r.b], [r.l, r.t]];
+      if (b.classList.contains('group')) {
+        add('path', { d: wobble(rect, 1.6), fill: 'none', stroke: c, 'stroke-width': 1.6, 'stroke-linecap': 'round',
+          'stroke-dasharray': b.classList.contains('solid') ? 'none' : '9 7' });
+        return;
+      }
+      const clip = add('clipPath', { id: 'ck' + i }, defs);
+      add('rect', { x: r.l, y: r.t, width: r.r - r.l, height: r.b - r.t }, clip);
+      const h = add('g', { 'clip-path': `url(#ck${i})`, stroke: c, 'stroke-width': 2.6, 'stroke-linecap': 'round', opacity: 0.3, fill: 'none' });
+      const H0 = r.b - r.t;
+      for (let t = -H0; t < r.r - r.l; t += 9) add('path', { d: wobble([[r.l + t, r.b + 2], [r.l + t + H0 + 4, r.t - 2]], 0.9) }, h);
+      const dash = getComputedStyle(b).borderTopStyle === 'dashed' ? '8 6' : 'none';
+      add('path', { d: wobble(rect, 1.8), fill: 'none', stroke: ink, 'stroke-width': 1.9, 'stroke-linejoin': 'round', 'stroke-linecap': 'round', 'stroke-dasharray': dash });
+      add('path', { d: wobble(rect.map(([x, y]) => [x + 1, y - 1]), 1.8), fill: 'none', stroke: ink, 'stroke-width': 0.9, opacity: 0.55, 'stroke-dasharray': dash });
+    });
+  }
   function dot(x, y, k, hollow) {
     const c = document.createElementNS(NS, 'circle');
     c.setAttribute('cx', x); c.setAttribute('cy', y); c.setAttribute('r', hollow ? 4 : 3.5);
@@ -842,13 +992,13 @@ function resolveMotionEdge(edge, flow = {}) {
     svg.appendChild(c);
   }
   // a small glowing packet travelling along each wire
-  function packet(pts, k, timeline) {
+  function packet(pts, k, timeline, wireD) {
     let len = 0;
     for (let i = 1; i < pts.length; i++) len += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
     const c = document.createElementNS(NS, 'circle');
-    c.setAttribute('r', 2.6); c.setAttribute('fill', cssv(k)); c.style.filter = `drop-shadow(0 0 3px ${cssv(k)})`;
+    c.setAttribute('r', 4); c.setAttribute('fill', cssv(k)); c.style.filter = `drop-shadow(0 0 3px ${cssv(k)})`;
     const m = document.createElementNS(NS, 'animateMotion');
-    m.setAttribute('path', 'M' + pts.map(q => q.join(',')).join(' L'));
+    m.setAttribute('path', wireD || 'M' + pts.map(q => q.join(',')).join(' L'));
     if (timeline) {
       const {at,duration,period} = timeline, end=at+duration;
       m.setAttribute('dur', period+'s'); m.setAttribute('begin', '0s'); m.setAttribute('repeatCount', 'indefinite');
@@ -964,6 +1114,7 @@ function resolveMotionEdge(edge, flow = {}) {
     })();
   }
 
+  if (TH.sketch) sketchBoxes();
   (S.edges || []).forEach((e0, i) => {
     const f = FLOW[e0.flow] || {};
     if (e0.flow && !FLOW[e0.flow]) issues.push(`edge#${i}: unknown flow "${e0.flow}"`);
@@ -978,19 +1129,22 @@ function resolveMotionEdge(edge, flow = {}) {
     if (e.straight) { if (V(a.side)) a.x = z.x; else a.y = z.y; }
     const pts = route(a, z, e).map(p => [Math.round(p[0] * 2) / 2, Math.round(p[1] * 2) / 2]);
     const k = col(e.color || 'dim');
-    const p = document.createElementNS(NS, 'polyline');
+    const shaped = TH.round || TH.sketch;
+    const p = document.createElementNS(NS, shaped ? 'path' : 'polyline');
     if (e.id) p.dataset.edgeId = String(e.id);
     if (e.meaning) p.dataset.meaning = String(e.meaning);
     if (e.order) p.dataset.order = String(e.order);
     if (e.messageType) p.dataset.messageType = e.messageType;
     if (e.relation) p.dataset.relation = RELATION_TYPES.has(e.relation) ? e.relation : 'invalid';
-    p.setAttribute('points', pts.map(q => q.join(',')).join(' '));
-    p.setAttribute('fill', 'none'); p.setAttribute('stroke', cssv(k)); p.setAttribute('stroke-width', 1.4);
-    if (e.dash) { p.setAttribute('stroke-dasharray', '5 4'); if (!STILL && e.relation !== 'association' && e.meaning !== 'dependency' && !e.timeline) p.classList.add('flow'); }
+    const wireD = shaped ? wirePath(pts) : null;
+    p.setAttribute(shaped ? 'd' : 'points', shaped ? wireD : pts.map(q => q.join(',')).join(' '));
+    p.setAttribute('stroke-linecap', TH.cap); p.setAttribute('stroke-linejoin', TH.join);
+    p.setAttribute('fill', 'none'); p.setAttribute('stroke', cssv(k)); p.setAttribute('stroke-width', TH.ww);
+    if (e.dash) { p.setAttribute('stroke-dasharray', TH.dash); if (!STILL && e.relation !== 'association' && e.meaning !== 'dependency' && !e.timeline) p.classList.add('flow'); }
     if (e.arrow !== false) { marker(k, e.arrowStyle); p.setAttribute('marker-end', `url(#a-${k}${e.arrowStyle === 'open' ? '-open' : ''})`); }
     if (e.arrow === 'both') p.setAttribute('marker-start', `url(#a-${k})`);
     svg.appendChild(p);
-    const timing = !STILL && e.packet !== false ? packet(pts, k, e.timeline) : null;
+    const timing = !STILL && e.packet !== false ? packet(pts, k, e.timeline, wireD) : null;
     if (timing && e.arrow === 'both') packet([...pts].reverse(), k);
     if (LIVE) liveEntry(e, k, timing);
     if (e.joint && pts.length > 2) dot(pts[pts.length - 2][0], pts[pts.length - 2][1], k, e.joint === 'hollow');
@@ -1067,20 +1221,57 @@ function resolveMotionEdge(edge, flow = {}) {
   for (const c of badColors) issues.push(`unknown color ${JSON.stringify(c)} — use one of: ${[...COLORS].join(' ')} (or ${Object.keys(SHORT).join(' ')})`);
   if (crossings) warnings.push(`${crossings} wire crossing(s) — fine if unavoidable, but try reordering boxes first`);
 
+  // ---------- isometric: lay the finished, checked diagram on an isometric floor ----------
+  // header and log stay upright above and below; the floor is scaled to fit the canvas width
+  let outW = W, outH = H, scaleEl = stage;
+  if (TH.iso) {
+    const floorBottom = Math.max(0, ...[...stage.querySelectorAll('.box, .group, .note')].map(e => R(e).b));
+    const root = el('div', null, null, fit); root.id = 'isoRoot'; root.style.width = W + 'px';
+    const head = byId('head'); head.classList.remove('abs'); root.appendChild(head);
+    const wrap = el('div', null, null, root); wrap.id = 'isoWrap'; wrap.appendChild(stage);
+    const foot = el('div', null, null, root); foot.id = 'isoFoot';
+    for (const id of ['log', 'status']) {
+      const x = byId(id); if (!x) continue;
+      x.classList.remove('abs'); x.style.left = x.style.right = x.style.top = ''; foot.appendChild(x);
+    }
+    stage.style.height = (floorBottom + 24) + 'px';
+    stage.classList.add('iso');
+    const ISO = 'matrix(0.866, 0.5, -0.866, 0.5, 0, 0)';
+    const bbox = () => {
+      const w0 = wrap.getBoundingClientRect(); let l = 1e9, t = 1e9, r = -1e9, b = -1e9;
+      for (const e of stage.querySelectorAll('.box, .group, .note, #wires > path, #wires > text, #wires > rect, #wires > circle[cx]')) {
+        const q = e.getBoundingClientRect(); if (!q.width && !q.height) continue;
+        l = Math.min(l, q.left); t = Math.min(t, q.top); r = Math.max(r, q.right); b = Math.max(b, q.bottom + 14);
+      }
+      return { l: l - w0.left, t: t - w0.top, w: r - l, h: b - t };
+    };
+    stage.style.transform = ISO;
+    // the tilted floor is wider than the flat layout: widen the canvas rather than shrink the text
+    const b = bbox();
+    outW = Math.max(W, Math.ceil(b.w + 48));
+    root.style.width = outW + 'px'; fit.style.maxWidth = outW + 'px';
+    stage.style.transform = `translate(${(outW - b.w) / 2 - b.l}px, ${16 - b.t}px) ${ISO}`;
+    wrap.style.height = Math.ceil(b.h + 32) + 'px';
+    outH = Math.ceil(root.getBoundingClientRect().height);
+    scaleEl = root;
+  }
+
   const pre = el('pre', null, null, document.body);
   pre.id = '__diag'; pre.hidden = true;
-  pre.textContent = JSON.stringify({ width: W, height: H, issues, warnings });
+  pre.textContent = JSON.stringify({ width: outW, height: outH, issues, warnings });
   if (issues.length) console.warn('[motion-map]', issues);
 
   // ---------- scale to fit narrow screens ----------
   // zoom re-lays out at the smaller size so text stays crisp; transform blurs in narrow windows
   const useZoom = CSS.supports('zoom', '0.5');
   function scale() {
-    const k = Math.min(1, fit.clientWidth / W);
-    if (useZoom) stage.style.zoom = k; else stage.style.transform = `scale(${k})`;
-    fit.style.height = (H * k) + 'px';
+    const k = Math.min(1, fit.clientWidth / outW);
+    if (useZoom) scaleEl.style.zoom = k; else scaleEl.style.transform = `scale(${k})`;
+    fit.style.height = (outH * k) + 'px';
   }
   addEventListener('resize', () => scale()); scale();
+
+  if (REDUCED) svg.pauseAnimations();
 
   // Controls stay outside the canvas; exports preserve the original framing.
   if (!CHECK && !LOOP) {
@@ -1100,26 +1291,36 @@ function resolveMotionEdge(edge, flow = {}) {
     themeSelect.value = activeTheme;
     themeSelect.addEventListener('change', () => {
       const url = new URL(location.href); url.searchParams.set('theme', themeSelect.value);
+      const geometric = new Set(['whiteboard', 'isometric']);
+      if (geometric.has(activeTheme) || geometric.has(themeSelect.value)) { location.href = url.href; return; }
       applyTheme(themeSelect.value);
       try { history.replaceState(null, '', url.href); } catch { /* Sandboxed previews can still switch themes. */ }
     });
     const pause = el('button', null, zh ? '暂停动画' : 'Pause motion', bar);
-    pause.type = 'button'; pause.disabled = STILL;
-    pause.setAttribute('aria-pressed', 'false');
+    pause.type = 'button';
+    if (REDUCED) { svg.pauseAnimations(); pause.textContent = zh ? '播放动画' : 'Play motion'; }
+    pause.setAttribute('aria-pressed', String(REDUCED));
     pause.addEventListener('click', () => {
       const paused = document.documentElement.classList.toggle('paused');
+      document.documentElement.classList.toggle('motion-on', !paused);
       if (paused) svg.pauseAnimations(); else svg.unpauseAnimations();
+      motionState.textContent = zh ? (paused ? '已暂停 · 点击继续播放' : '正在播放 · 关系方向保持不变') : (paused ? 'Paused' : 'Playing');
       pause.textContent = zh ? (paused ? '继续动画' : '暂停动画') : (paused ? 'Resume motion' : 'Pause motion');
       pause.setAttribute('aria-pressed', String(paused));
     });
+    const motionState = el('span', 'motion-state', null, bar);
+    motionState.setAttribute('role', 'status');
+    const count = svg.querySelectorAll('animateMotion').length;
+    motionState.textContent = !count ? (zh ? '静态关系图 · 本图没有调用或消息流' : 'Static relationships · no message flow') : REDUCED ? (zh ? '系统减少动态效果 · 点击播放动画' : 'Reduced motion · choose Play') : (zh ? '正在播放 · 光点表示消息传递' : 'Playing · dots represent messages');
+    pause.disabled = !count;
     let actual = false;
     const zoom = el('button', null, zh ? '原始尺寸' : 'Actual size', bar);
     zoom.type = 'button'; zoom.setAttribute('aria-pressed', 'false');
     const resize = scale;
     scale = function () {
       if (!actual) { resize(); return; }
-      if (useZoom) stage.style.zoom = 1; else stage.style.transform = 'none';
-      fit.style.height = H + 'px';
+      if (useZoom) scaleEl.style.zoom = 1; else scaleEl.style.transform = 'none';
+      fit.style.height = outH + 'px';
     };
     zoom.addEventListener('click', () => {
       actual = !actual;

@@ -43,7 +43,7 @@ An edge's `relation` overrides its flow's relation. Relationship semantics take 
 - A hub-and-spoke map suits one central entity and its relationships. Layers suit dependencies; a directional process suits a sequence. Use groups only for actual containment or clearly labeled explanation panels. Minimize crossings; crossing lines are not implicit junctions.
 - `layout: "explainer"` provides a whiteboard teaching composition with numbered panels, outline icons, comparisons and small local diagrams. It defaults to `theme: "sketch"`. Use `examples/reading-club.json`, `dsh-explainer.json` or `music-separation.json` for different compositions; do not repeat the same panel count across unrelated subjects.
 - `presentation: true` provides a prominent title and left-aligned cards for conventional maps. Choose it or explainer mode, rather than both.
-- Themes: `paper`, `porcelain`, `blueprint`, `graphite`, `sketch`. Themes recolor a chosen structure; they do not select the structure. See [style.md](references/style.md) for the visual primitives and typography.
+- Styles from upstream 1.3.0: `blueprint` (晒图蓝图), `drafting` (牛皮纸制图), `whiteboard` (白板手绘), `brutalism` (粗野撞色), `crt` (荧光终端), `saas` (柔光卡片), `isometric` (3D 等距沙盘). Existing `paper`, `porcelain`, `graphite`, `sketch` remain available. Restyle by rebuilding the same spec with `--theme`; preserve all relationships and message order. Themes recolor a chosen structure; they do not select the structure. See [style.md](references/style.md) for the visual primitives and typography.
 
 Use the user's language throughout the title, legend and labels. Identifiers, commands and source paths retain their original spelling. Do not invent current health/status, statistics or a real execution log for decoration.
 
@@ -54,7 +54,7 @@ node $SK/scripts/build.mjs <slug>.spec.json <slug>.html
 node $SK/scripts/check.mjs <slug>.html <slug>.png
 ```
 
-Fix every reported layout error, then look at the screenshot: painting order, readable type, balanced whitespace, paths and labels. Test a narrow viewport when the deliverable is interactive; actual-size mode must allow reading small text. Reduced motion must leave the diagram useful.
+Fix every reported layout error, then look at the screenshot: painting order, readable type, balanced whitespace, paths and labels. Test a narrow viewport when the deliverable is interactive; actual-size mode must allow reading small text. Reduced motion starts paused and offers an explicit Play button. Open the actual HTML file in a browser; a platform attachment preview may suppress scripts. Never send a `?check` URL as an animated preview. Static associations/dependencies remain still; explain this distinction. Exported videos explicitly enable motion.
 
 Save the spec beside the HTML. Honor a user-specified location; for a current project use its `architecture/` or `diagrams/` directory, otherwise a task-specific output directory. Edit the spec and rebuild rather than hand-editing generated HTML.
 
