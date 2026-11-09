@@ -1,6 +1,6 @@
 {
   "name": "@yuezheng2006/motion-map",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "Motion Map: animated relationship, architecture and explainer diagrams from sources or structured notes",
   "type": "module",
   "bin": {

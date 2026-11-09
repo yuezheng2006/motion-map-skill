@@ -13,6 +13,7 @@
     activeTheme = safeTheme(name);
     const root = document.documentElement;
     root.dataset.theme = activeTheme;
+    document.getElementById('upstream-base').media = ['blueprint','drafting','whiteboard','brutalism','crt','saas','isometric'].includes(activeTheme) ? 'all' : 'not all';
     root.removeAttribute('style');
     for (const [key, value] of Object.entries(THEMES[activeTheme].tokens)) root.style.setProperty('--' + key, value);
     root.style.colorScheme = THEMES[activeTheme].tokens['color-scheme'];
@@ -289,7 +290,8 @@
     const m = document.createElementNS(NS, 'marker');
     m.setAttribute('id', 'a-' + key); m.setAttribute('viewBox', '0 0 10 10');
     m.setAttribute('refX', 9); m.setAttribute('refY', 5);
-    m.setAttribute('markerWidth', 7); m.setAttribute('markerHeight', 7); m.setAttribute('orient', 'auto-start-reverse');
+    m.setAttribute('markerUnits', 'userSpaceOnUse');
+    m.setAttribute('markerWidth', TH.arrow); m.setAttribute('markerHeight', TH.arrow); m.setAttribute('orient', 'auto-start-reverse');
     const p = document.createElementNS(NS, 'path');
     p.setAttribute('d', style === 'open' ? 'M1,1 L9,5 L1,9' : 'M0,0 L10,5 L0,10 z'); p.setAttribute('fill', style === 'open' ? 'none' : cssv(k));
     if (style === 'open') { p.setAttribute('stroke', cssv(k)); p.setAttribute('stroke-width', 1.7); }
@@ -480,6 +482,21 @@
       t.appendChild(sp);
     });
     svg.appendChild(t);
+    if (TH.labelBox === 'halo') {
+      t.setAttribute('paint-order', 'stroke'); t.setAttribute('stroke', cssv('bg'));
+      t.setAttribute('stroke-width', 4); t.setAttribute('stroke-linejoin', 'round');
+    } else if (TH.labelBox) {
+      const b = t.getBBox(), px = TH.labelBox === 'pill' ? 8 : 5, py = 2;
+      const r = document.createElementNS(NS, 'rect');
+      r.setAttribute('x', b.x - px); r.setAttribute('y', b.y - py);
+      r.setAttribute('width', b.width + 2 * px); r.setAttribute('height', b.height + 2 * py);
+      r.setAttribute('class', 'lblbox');
+      if (TH.labelBox === 'pill') {
+        r.setAttribute('rx', (b.height + 2 * py) / 2); r.setAttribute('fill', cssv('panel'));
+        r.setAttribute('stroke', cssv('faint')); r.setAttribute('stroke-width', 1);
+      } else { r.setAttribute('fill', cssv('panel')); r.setAttribute('stroke', cssv('head')); r.setAttribute('stroke-width', 2); }
+      svg.insertBefore(r, t);
+    }
     labels.push({ t, name });
   }
 
@@ -546,6 +563,19 @@
   }
 
   if (TH.sketch) sketchBoxes();
+  // blueprint: registration crosses on box corners; drawn under the boxes, so only the outer arms show
+  if (TH.marks) {
+    const g = document.createElementNS(NS, 'g'); g.setAttribute('class', 'registration-marks'); svg.insertBefore(g, defs.nextSibling);
+    for (const b of stage.querySelectorAll('.box')) {
+      const r = R(b), c = getComputedStyle(b).getPropertyValue('--c').trim() || cssv('faint');
+      for (const [x, y] of [[r.l, r.t], [r.r, r.t], [r.l, r.b], [r.r, r.b]]) {
+        const p = document.createElementNS(NS, 'path');
+        p.setAttribute('d', `M${x - 7},${y} H${x + 7} M${x},${y - 7} V${y + 7}`);
+        p.setAttribute('stroke', c); p.setAttribute('stroke-width', 1); g.appendChild(p);
+      }
+    }
+  }
+
   (S.edges || []).forEach((e0, i) => {
     const f = FLOW[e0.flow] || {};
     if (e0.flow && !FLOW[e0.flow]) issues.push(`edge#${i}: unknown flow "${e0.flow}"`);
@@ -572,14 +602,15 @@
     p.setAttribute('stroke-linecap', TH.cap); p.setAttribute('stroke-linejoin', TH.join);
     p.setAttribute('fill', 'none'); p.setAttribute('stroke', cssv(k)); p.setAttribute('stroke-width', TH.ww);
     if (e.dash) { p.setAttribute('stroke-dasharray', TH.dash); if (!STILL && e.relation !== 'association' && e.meaning !== 'dependency' && !e.timeline) p.classList.add('flow'); }
+    if (!e.messageType && !e.arrowStyle && TH.arrowShape === 'open') e.arrowStyle = 'open';
     if (e.arrow !== false) { marker(k, e.arrowStyle); p.setAttribute('marker-end', `url(#a-${k}${e.arrowStyle === 'open' ? '-open' : ''})`); }
-    if (e.arrow === 'both') p.setAttribute('marker-start', `url(#a-${k})`);
+    if (e.arrow === 'both') p.setAttribute('marker-start', `url(#a-${k}${e.arrowStyle === 'open' ? '-open' : ''})`);
     svg.appendChild(p);
     const timing = !STILL && e.packet !== false ? packet(pts, k, e.timeline, wireD) : null;
     if (timing && e.arrow === 'both') packet([...pts].reverse(), k);
     if (LIVE) liveEntry(e, k, timing);
     if (e.joint && pts.length > 2) dot(pts[pts.length - 2][0], pts[pts.length - 2][1], k, e.joint === 'hollow');
-    if (e.startDot) dot(pts[0][0], pts[0][1], k, e.startDot === 'hollow');
+    if (e.startDot || (TH.startDot && !Array.isArray(e.from) && e.startDot !== false && !e.lifeline)) dot(pts[0][0], pts[0][1], k, e.startDot === 'hollow');
     if (e.label) label(pts, e, k, name);
     for (let j = 1; j < pts.length; j++) segs.push({ name, a: pts[j - 1], b: pts[j], skip: [a.box, z.box], lifeline: e.lifeline === true });
   });
@@ -722,7 +753,7 @@
     themeSelect.value = activeTheme;
     themeSelect.addEventListener('change', () => {
       const url = new URL(location.href); url.searchParams.set('theme', themeSelect.value);
-      const geometric = new Set(['whiteboard', 'isometric']);
+      const geometric = new Set(['blueprint','drafting','whiteboard','brutalism','crt','saas','isometric']);
       if (geometric.has(activeTheme) || geometric.has(themeSelect.value)) { location.href = url.href; return; }
       applyTheme(themeSelect.value);
       try { history.replaceState(null, '', url.href); } catch { /* Sandboxed previews can still switch themes. */ }

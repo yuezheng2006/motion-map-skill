@@ -43,7 +43,7 @@ if (!errs.length) errs.push(...validateDependencies(spec));
 const flowIds = new Set();
 for (const f of spec.flows || []) { if (typeof f.id !== 'string' || !f.id || flowIds.has(f.id)) errs.push('flow ids must be nonempty and unique'); flowIds.add(f.id); }
 for (const e of spec.edges || []) if (e.flow && !flowIds.has(e.flow)) errs.push('unknown flow: ' + e.flow);
-const reserved = new Set(['spec','themes','wires','head','stage','fit','log','__diag']);
+const reserved = new Set(['spec','themes','wires','head','stage','fit','log','__diag','upstream-base']);
 const ids = new Set();
 const seen = id => { if (reserved.has(id)) errs.push('reserved diagram id: ' + id); if (ids.has(id)) errs.push(`duplicate id "${id}"`); ids.add(id); };
 for (const n of spec.nodes || []) {
@@ -70,13 +70,15 @@ const escHtml = s => s.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>':
 const fill = {
   __LANG__: escHtml(spec.lang || 'zh-CN'),
   __TITLE__: escHtml(spec.pageTitle || plain(spec.title) || 'Architecture'),
-  __CSS__: read('style.css') + '\n' + read('explainer.css') + '\n' + read('upstream-themes.css'),
+  __CSS__: read('style.css') + '\n' + read('explainer.css'),
+  __UPSTREAM_BASE__: read('upstream-base.css'),
+  __UPSTREAM_SKINS__: read('upstream-themes.css'),
   __THEMES__: JSON.stringify(themes).replace(/</g, '\\u003c'),
   // keep "</script>" inside strings from closing the tag early
   __SPEC__: JSON.stringify(spec, null, 1).replace(/</g, '\\u003c'),
   __ENGINE__: readFileSync(join(assets, '..', 'scripts', 'relations.mjs'), 'utf8').replace(/^export /gm, '') + '\n' + read('engine.js'),
 };
-const html = read('template.html').replace(/__LANG__|__TITLE__|__CSS__|__SPEC__|__THEMES__|__ENGINE__/g, k => fill[k]);
+const html = read('template.html').replace(/__LANG__|__TITLE__|__CSS__|__SPEC__|__THEMES__|__ENGINE__|__UPSTREAM_BASE__|__UPSTREAM_SKINS__/g, k => fill[k]);
 mkdirSync(dirname(resolve(outPath)), { recursive: true });
 writeFileSync(outPath, html);
 console.log(`✓ built ${outPath} (${(html.length / 1024).toFixed(1)} KB, ${(spec.nodes || []).length} nodes, ${(spec.edges || []).length} edges)`);

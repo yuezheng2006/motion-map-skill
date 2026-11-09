@@ -37,6 +37,6 @@ Readability and geometry take precedence over imitating the reference's exact le
 
 Build the same spec with `--theme blueprint|drafting|whiteboard|brutalism|crt|saas|isometric`. These styles include fonts, borders, fills and surfaces, not only palette changes. Whiteboard adds deterministic sketch outlines/hatching; SaaS rounds routes; isometric transforms the finished floor after geometry validation. The header and trace stay upright. Hand-drawn endpoints retain exact anchors/tangents. Semantic call/async/return arrow shapes take precedence over decorative style preferences.
 
-Changing into or out of whiteboard/isometric reloads the local document to recompute geometry. Other palettes switch immediately. No external scripts, fonts or CDN are required. The original four custom styles paper/porcelain/graphite/sketch remain available.
+Changing into or out of the seven upstream styles reloads the local document to recompute geometry. Other palettes switch immediately. No external scripts, fonts or CDN are required. The original four custom styles paper/porcelain/graphite/sketch remain available.
 
 Animation: normal browser opening autoplays message packets; reduced-motion preference starts paused, with explicit Play available. `?motion=on` opts into motion; `?check` always suppresses it. Static associations/dependencies have no packets. Video export uses explicit motion and measures the selected theme before setting its viewport.

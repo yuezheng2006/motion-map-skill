@@ -69,3 +69,7 @@ With no requested format, deliver HTML plus the editable spec. Add the requested
 Mermaid preserves logical edge direction but lays out the map itself; routes anchored only on raw points may be omitted with an exporter warning. Explain material omissions. Static association maps can remain still; do not add meaningless motion solely to create a video.
 
 Deliver files through the current surface's attachment/artifact mechanism and explain what the map shows and any inferred or omitted parts. Follow the user's existing installation, publishing and communication scope; creating a map does not authorize posting it elsewhere.
+
+## Visual fidelity checks
+
+For upstream styles, preserve their visual grammar: blueprint uses crisp corners and registration crosses; drafting uses fine double borders and numbered balloons; whiteboard uses hatched sketches; brutalism uses thick ink and hard shadows; CRT uses phosphor/scanlines; SaaS uses soft surfaces and label pills; isometric uses a transformed floor. Do not overlay custom rounded-card/grid styles on all themes. A six-card overview is not an adequate substitute for a detailed architecture: derive modules, boundaries, main/return paths and shared dependencies from evidence, then choose composition. If comparing to upstream, use the same spec and viewport before judging. Keep role maps and sequence diagrams in their appropriate layouts.

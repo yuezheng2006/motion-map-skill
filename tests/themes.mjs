@@ -22,7 +22,7 @@ try {
       return v.reduce((s,x,i) => s+x*[.2126,.7152,.0722][i],0);
     };
     for (const [id, theme] of Object.entries(themes)) {
-      if (['whiteboard','isometric'].includes(id)) continue;
+      if (['blueprint','drafting','whiteboard','brutalism','crt','saas','isometric'].includes(id)) continue;
       menu.value = id; menu.dispatchEvent(new Event('change'));
       if (root.dataset.theme !== id || new URL(location.href).searchParams.get('theme') !== id) throw Error('selection '+id);
       if (getComputedStyle(document.getElementById('fit')).backgroundColor !== rgb(theme.tokens.bg)) throw Error('canvas '+id);
